@@ -1,0 +1,93 @@
+"""Core eval harness: run tasks against an agent, measure success, latency, cost."""
+import time
+import uuid
+from dataclasses import dataclass, field
+
+# USD per 1K tokens (prompt, completion) - free-tier models cost 0.00 on free tier;
+# prices shown for honesty when a paid key is used. Keep this table current manually.
+PRICING = {
+    "llama-3.3-70b-versatile": (0.00059, 0.00079),
+    "gemini-2.0-flash": (0.00010, 0.00040),
+    "llama3.2": (0.0, 0.0),            # local Ollama: no API cost
+    "mock": (0.0, 0.0),
+}
+
+
+@dataclass
+class Task:
+    id: str
+    input: str
+    expected_keywords: list[str] = field(default_factory=list)
+
+
+@dataclass
+class AgentResult:
+    output: str
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    model: str = "mock"
+
+
+@dataclass
+class TaskResult:
+    task_id: str
+    success: bool
+    latency_s: float
+    prompt_tokens: int
+    completion_tokens: int
+    cost_usd: float
+    output: str
+    error: str | None = None
+
+
+def estimate_cost(model, prompt_tokens, completion_tokens):
+    """Returns (cost_usd, priced: bool). Unknown models are reported, not guessed."""
+    if model in PRICING:
+        p_in, p_out = PRICING[model]
+        return (prompt_tokens / 1000) * p_in + (completion_tokens / 1000) * p_out, True
+    return 0.0, False
+
+
+def score(output: str, expected_keywords: list[str]) -> bool:
+    low = output.lower()
+    return all(k.lower() in low for k in expected_keywords)
+
+
+def run_eval(tasks: list[Task], agent, run_id: str | None = None):
+    """agent: callable(input: str) -> AgentResult. Returns (run_id, results, summary)."""
+    run_id = run_id or uuid.uuid4().hex[:10]
+    results: list[TaskResult] = []
+    for task in tasks:
+        t0 = time.perf_counter()
+        error = None
+        try:
+            res = agent(task.input)
+        except Exception as exc:  # noqa: BLE001 - an agent failure is a measured failure
+            res, error = AgentResult(output=""), str(exc)
+        latency = time.perf_counter() - t0
+        cost, _ = estimate_cost(res.model, res.prompt_tokens, res.completion_tokens)
+        results.append(TaskResult(
+            task_id=task.id,
+            success=(error is None) and score(res.output, task.expected_keywords),
+            latency_s=round(latency, 4),
+            prompt_tokens=res.prompt_tokens,
+            completion_tokens=res.completion_tokens,
+            cost_usd=round(cost, 8),
+            output=res.output,
+            error=error))
+
+    n = len(results)
+    successes = sum(1 for r in results if r.success)
+    latencies = sorted(r.latency_s for r in results)
+    summary = {
+        "run_id": run_id,
+        "tasks": n,
+        "successes": successes,
+        "success_rate": round(successes / n, 4) if n else 0.0,
+        "avg_latency_s": round(sum(latencies) / n, 4) if n else 0.0,
+        "p95_latency_s": latencies[min(n - 1, int(0.95 * (n - 1)))] if n else 0.0,
+        "total_prompt_tokens": sum(r.prompt_tokens for r in results),
+        "total_completion_tokens": sum(r.completion_tokens for r in results),
+        "total_cost_usd": round(sum(r.cost_usd for r in results), 8),
+    }
+    return run_id, results, summary
