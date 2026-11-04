@@ -2,8 +2,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from . import agents, store
+from . import agents, datasets, store
 from .harness import Task, run_eval
+from .scorers import ScorerUnavailable
 
 app = FastAPI(title="Agent Eval Harness", version="1.0.0")
 
@@ -12,7 +13,9 @@ REGISTRY = {"scripted": agents.scripted_agent, "always_fail": agents.always_fail
 
 class RunRequest(BaseModel):
     agent: str = "scripted"
-    tasks: list[dict] | None = None  # [{"id","input","expected_keywords"}]; default: builtin set
+    tasks: list[dict] | None = None  # [{"id","input","expected_keywords","reference"?,"scorer"?}]
+    dataset: str | None = None       # "name" or "name@version"; overrides tasks
+    scorer: str | None = None        # run default: keyword|semantic|judge
 
 
 @app.on_event("startup")
@@ -32,14 +35,33 @@ def runs():
         return store.list_runs(conn)
 
 
+@app.get("/datasets")
+def list_datasets():
+    import json
+    return json.loads((datasets.DATASETS_DIR / "manifest.json").read_text())["datasets"]
+
+
 @app.post("/runs")
 def create_run(body: RunRequest):
     if body.agent not in REGISTRY:
         raise HTTPException(400, f"unknown agent {body.agent!r}; options: {list(REGISTRY)}")
-    raw = body.tasks or agents.BUILTIN_TASKS
-    tasks = [Task(id=t["id"], input=t["input"],
-                  expected_keywords=t.get("expected_keywords", [])) for t in raw]
-    run_id, results, summary = run_eval(tasks, REGISTRY[body.agent])
+    if body.dataset:
+        name, version = datasets.parse_dataset_ref(body.dataset)
+        try:
+            tasks = datasets.load_dataset(name, version).tasks
+        except (KeyError, FileNotFoundError, ValueError) as exc:
+            raise HTTPException(400, str(exc))
+    else:
+        raw = body.tasks or agents.BUILTIN_TASKS
+        tasks = [Task(id=t["id"], input=t["input"],
+                      expected_keywords=t.get("expected_keywords", []),
+                      reference=t.get("reference"), scorer=t.get("scorer")) for t in raw]
+    try:
+        run_id, results, summary = run_eval(tasks, REGISTRY[body.agent], scorer=body.scorer)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    except ScorerUnavailable as exc:
+        raise HTTPException(400, f"scorer backend unavailable: {exc}")
     with store.connect() as conn:
         store.save_run(conn, run_id, body.agent, summary, results)
     return summary
