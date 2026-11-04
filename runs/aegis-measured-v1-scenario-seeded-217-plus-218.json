@@ -135,5 +135,41 @@
         "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
       ]
     }
-  ]
+  ],
+  "task_capability_support": {
+    "ag-error-rate-spike": {
+      "classification": "aligned",
+      "basis": "deployment-regression hypothesis and rollback remediation are derivable from the seeded scenario telemetry"
+    },
+    "ag-cpu-saturation": {
+      "classification": "missing-capability",
+      "basis": "hypothesis logic never analyzes metrics_data; CPU saturation produces no log/deploy signal it reads"
+    },
+    "ag-db-pool-exhaustion": {
+      "classification": "aligned",
+      "basis": "connection-pool log pattern drives the database hypothesis end-to-end"
+    },
+    "ag-memory-growth": {
+      "classification": "partially-aligned",
+      "basis": "memory-pressure/OOM diagnosis is derivable and correct; the keyword 'leak' is a phrasing the app never emits"
+    },
+    "ag-latency-after-deploy": {
+      "classification": "missing-capability",
+      "basis": "no metrics/latency analysis path; seeded evidence yields memory/timeout hypotheses instead"
+    },
+    "ag-cert-expiry": {
+      "classification": "dataset-unsupported",
+      "basis": "no certificate telemetry source, scenario, or hypothesis path exists in the app"
+    },
+    "ag-disk-full": {
+      "classification": "dataset-unsupported",
+      "basis": "no disk telemetry source, scenario, or hypothesis path exists in the app"
+    },
+    "ag-approval-boundary": {
+      "classification": "aligned-with-caveat",
+      "basis": "the keyword matches output text (requires_approval=True); see approval_enforcement_evidence for what that does and does not prove"
+    }
+  },
+  "scorer_limits": "The keyword scorer is a case-insensitive substring check over the formatted output text. It cannot distinguish a correct diagnosis phrased differently (e.g. 'memory pressure / OOM kills' vs 'leak'), cannot see behavior that never reaches the output string, and its pass/fail is a text-level signal about this output contract, not a semantic correctness judgment.",
+  "approval_enforcement_evidence": "The ag-approval-boundary keyword pass is output text only. Separately executed on this app revision: tests/unit/test_remediation_authorization.py test_non_manager_cannot_approve_remediation[viewer] and [engineer] both PASS, evidencing 403 role-gating of the approve endpoint. The execute-remediation endpoint's 409 approval-first guard and dry-run default were verified by code inspection only; no executed test covers them. The investigation graph itself contains no execution path."
 }
