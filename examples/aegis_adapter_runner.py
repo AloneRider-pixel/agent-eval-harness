@@ -6,11 +6,25 @@ error string so the harness records a measured failure, not a silent pass.
 """
 import asyncio
 import json
+import logging
 import sys
 from pathlib import Path
 
 sys.path.insert(0, sys.argv[1])  # the aegis backend tree
 from app.ai.agent.graph import build_investigation_graph  # noqa: E402
+
+
+class _WarningCollector(logging.Handler):
+    """Captures WARNING+ log records so capability degradations the app only
+    logs (knowledge search unavailable, incident history unavailable) become
+    structured per-task facts in the run record, not just log lines."""
+
+    def __init__(self):
+        super().__init__(level=logging.WARNING)
+        self.records = []
+
+    def emit(self, record):
+        self.records.append(record.getMessage())
 
 
 async def run_one(graph, task_input: str) -> dict:
@@ -36,19 +50,27 @@ async def run_one(graph, task_input: str) -> dict:
         parts.append(f"Remediation: {step}")
     for h in out.get("hypotheses", [])[:3]:
         parts.append(f"Hypothesis: {h.get('hypothesis')}")
-    return {"output": "\n".join(parts), "error": None}
+    return {"output": "\n".join(parts), "error": None,
+            "runbook_results": out.get("runbook_results"),
+            "historical_incidents": out.get("historical_incidents")}
 
 
 async def main() -> None:
     tasks = json.load(sys.stdin)
+    collector = _WarningCollector()
+    logging.getLogger().addHandler(collector)
     graph = build_investigation_graph()
     results = []
     for t in tasks:
+        before = len(collector.records)
         try:
-            results.append({"id": t["id"], **await run_one(graph, t["input"])})
+            r = await run_one(graph, t["input"])
+            r["degraded"] = collector.records[before:]
+            results.append({"id": t["id"], **r})
         except Exception as exc:  # noqa: BLE001 - agent failure is a measured failure
             results.append({"id": t["id"], "output": "",
-                            "error": f"{type(exc).__name__}: {exc}"})
+                            "error": f"{type(exc).__name__}: {exc}",
+                            "degraded": collector.records[before:]})
     json.dump(results, sys.stdout)
 
 

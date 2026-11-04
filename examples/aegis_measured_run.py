@@ -54,17 +54,19 @@ def build_aegis_agent(backend: Path, venv_python: str, tasks):
     measured agent failure with the real error text."""
     batch = run_aegis_batch(backend, venv_python, tasks)
     by_input = {t.input: batch[t.id] for t in tasks}
+    aegis_agent_degraded = {}
 
     def aegis_agent(task_input: str) -> AgentResult:
         r = by_input[task_input]
         if r["error"]:
             raise RuntimeError(r["error"])
+        aegis_agent_degraded[task_input] = r.get("degraded", [])
         return AgentResult(output=r["output"],
                            prompt_tokens=len(task_input.split()),
                            completion_tokens=len(r["output"].split()),
                            model="deterministic-graph (no LLM in path)")
 
-    return aegis_agent
+    return aegis_agent, aegis_agent_degraded
 
 
 def main() -> int:
@@ -84,8 +86,11 @@ def main() -> int:
     backend = Path(args.aegis_backend)
     name, version = args.dataset.split("@")
     ds = load_dataset(name, version)
-    agent = build_aegis_agent(backend, args.aegis_python, ds.tasks)
+    agent, aegis_agent_degraded = build_aegis_agent(backend, args.aegis_python, ds.tasks)
     _, results, summary = run_eval(ds.tasks, agent, scorer=args.scorer)
+    by_id = {t.id: t.input for t in ds.tasks}
+    degradations = sorted({d for degs in aegis_agent_degraded.values()
+                           for d in degs})
 
     record = {
         "label": "measured run (real app, current revision as-is)",
@@ -98,10 +103,17 @@ def main() -> int:
                    "approval_gating": "unchanged (no execution path invoked)"},
         "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "note": args.note,
+        "capability_degradations": degradations,
+        "gate_eligible": not degradations,
+        "gate_note": (None if not degradations else
+                      "capabilities were degraded (unavailable services are "
+                      "listed, not mistaken for empty results); a baseline "
+                      "from this run would bake in the missing capability"),
         "summary": summary,
         "task_results": [{
             "task_id": r.task_id, "success": r.success, "error": r.error,
             "detail": r.detail, "latency_s": r.latency_s,
+            "degraded": aegis_agent_degraded.get(by_id[r.task_id], []),
         } for r in results],
     }
     out = Path(args.out or f"runs/aegis-measured-{ds.version}.json")
