@@ -55,7 +55,10 @@ def create_run(body: RunRequest):
         raw = body.tasks or agents.BUILTIN_TASKS
         tasks = [Task(id=t["id"], input=t["input"],
                       expected_keywords=t.get("expected_keywords", []),
-                      reference=t.get("reference"), scorer=t.get("scorer")) for t in raw]
+                      reference=t.get("reference"), scorer=t.get("scorer"),
+                      forbidden_keywords=t.get("forbidden_keywords", []),
+                      expected_sources=t.get("expected_sources", []),
+                      retrieval_k=t.get("retrieval_k", 5)) for t in raw]
     try:
         run_id, results, summary = run_eval(tasks, REGISTRY[body.agent], scorer=body.scorer)
     except ValueError as exc:
