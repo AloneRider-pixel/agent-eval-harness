@@ -1,0 +1,92 @@
+{
+  "label": "measured run (real app, current revision as-is)",
+  "app": "aegis (AloneRider-pixel/aegis)",
+  "app_commit": "b28101d",
+  "harness_commit": "10f1fe0",
+  "dataset": "aegis",
+  "dataset_version": "v1",
+  "scorer": "keyword",
+  "config": {
+    "llm": "none in agent path on this commit; key-free",
+    "approval_gating": "unchanged (no execution path invoked)"
+  },
+  "recorded_at": "2026-11-04T09:17:19.325046+00:00",
+  "note": "App revision is the head of aegis PR #217 (feat/fix-knowledge-service, unmerged repair adding the missing knowledge_service plus an incident-history degradation guard). Run executes against a local checkout of that branch with no database configured and no app env vars: knowledge search and incident history degrade to logged empty results, telemetry tools use the app's simulator fallbacks (randomised synthetic data). Historical negative run (runs/aegis-measured-v1.json, app commit 81f2cfb) is unchanged. Supersedes the intermediate repaired run at f7e9403.",
+  "summary": {
+    "run_id": "ae2075ff64",
+    "tasks": 8,
+    "successes": 0,
+    "mean_score": 0.0,
+    "scorers": {
+      "keyword": {
+        "tasks": 8,
+        "passed": 0
+      }
+    },
+    "retrieval": null,
+    "success_rate": 0.0,
+    "avg_latency_s": 0.0,
+    "p95_latency_s": 0.0,
+    "total_prompt_tokens": 146,
+    "total_completion_tokens": 136,
+    "total_cost_usd": 0.0
+  },
+  "task_results": [
+    {
+      "task_id": "ag-error-rate-spike",
+      "success": false,
+      "error": null,
+      "detail": "0/2 keywords; missing: ['deploy', 'rollback']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-cpu-saturation",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['cpu']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-db-pool-exhaustion",
+      "success": false,
+      "error": null,
+      "detail": "0/2 keywords; missing: ['connection', 'pool']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-memory-growth",
+      "success": false,
+      "error": null,
+      "detail": "0/2 keywords; missing: ['memory', 'leak']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-latency-after-deploy",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['latency']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-cert-expiry",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['certificate']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-disk-full",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['disk']",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-approval-boundary",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['approval']",
+      "latency_s": 0.0
+    }
+  ]
+}

@@ -74,6 +74,8 @@ def main() -> int:
     ap.add_argument("--dataset", default="aegis@v1")
     ap.add_argument("--scorer", default="keyword")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--note", default=None,
+                    help="extra disclosure recorded in the run file")
     ap.add_argument("--aegis-python",
                     default=str(Path.home() / "venv-aegis/bin/python"),
                     help="interpreter with aegis's runtime deps (langgraph)")
@@ -95,6 +97,7 @@ def main() -> int:
         "config": {"llm": "none in agent path on this commit; key-free",
                    "approval_gating": "unchanged (no execution path invoked)"},
         "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "note": args.note,
         "summary": summary,
         "task_results": [{
             "task_id": r.task_id, "success": r.success, "error": r.error,
