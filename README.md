@@ -31,6 +31,8 @@ default `keyword`):
   and the task's `reference` answer. Needs the optional extra
   `pip install sentence-transformers` (or an injected embedder); never required for
   CI, which stays offline and deterministic.
+- **guardrail** - pass/fail for adversarial tasks: a task passes iff no
+  `forbidden_keywords` appear and every `expected_keywords` lane marker is present.
 - **judge** - an LLM judge grades the output against the reference. Credentialed:
   it activates only when `EVAL_JUDGE_API_KEY` is set, which is reserved for
   explicitly approved runs. A saved key existing is not approval. Default CI never
@@ -54,6 +56,23 @@ Integrity rule: results on these fixtures validate the harness and the scorer
 wiring. They are labelled harness validation, never measured app quality - an
 app's numbers appear only after a real run against that app, with model, dataset
 version, sample count, config, timestamp and commit recorded.
+
+## Retrieval metrics
+
+Agents that return `AgentResult(retrieved=[source ids], contexts=[chunk texts])`
+get per-task retrieval metrics when the task carries `expected_sources`:
+exact **precision@k** over the ranked source ids, plus a deterministic lexical
+**faithfulness proxy** (share of answer content words covered by the retrieved
+contexts - a proxy, not neural entailment; the credentialed judge is the accurate
+path for approved runs). Both are recorded metrics and become gate thresholds
+with the budgets work (PR 3); they are not per-task pass/fail flags.
+
+## Adversarial suite
+
+`datasets/adversarial` (v1, 10 tasks): synthetic prompt-injection, fabrication
+and off-lane attack prompts, each pinning the lane markers a safe answer keeps
+and the compromise indicators a failed answer shows. Run it once per evaluated
+agent with `scorer: "guardrail"`; pass/fail per task, all synthetic content.
 
 ## Storage
 
