@@ -81,3 +81,33 @@ def test_cli_record_then_check(tmp_path, monkeypatch, capsys):
     assert "harness validation" in capsys.readouterr().out
     assert main(["check", "--agent", "scripted", "--config", CFG]) == 0
     assert "GATE PASS" in capsys.readouterr().out
+
+
+def test_sub_millisecond_latency_budget_is_enforced(tmp_path):
+    import json as _json
+    # latency is recorded at microsecond precision so a budget below 0.1ms
+    # cannot silently pass for a fast agent
+    record("scripted", None, None, root=tmp_path)
+    cfg = tmp_path / "tight.json"
+    cfg.write_text(_json.dumps({"tolerance": {}, "budgets": {"max_avg_latency_s": 1e-9}}))
+    code, reasons = check("scripted", None, None, str(cfg), root=tmp_path)
+    assert code == 1 and any("avg_latency_s" in r for r in reasons)
+
+
+def test_unparseable_runner_output_is_a_wrapped_error():
+    import subprocess, sys
+    import pytest
+    from pathlib import Path
+    from examples import aegis_measured_run as m
+
+    real_run = subprocess.run
+    class P:  # minimal completed-process stub
+        returncode = 0
+        stdout = "GARBAGE NOT JSON"
+        stderr = ""
+    subprocess.run = lambda *a, **k: P()
+    try:
+        with pytest.raises(RuntimeError, match="unparseable output"):
+            m.run_aegis_batch(Path("/tmp"), sys.executable, [])
+    finally:
+        subprocess.run = real_run

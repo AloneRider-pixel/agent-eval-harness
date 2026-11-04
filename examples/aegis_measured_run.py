@@ -44,7 +44,13 @@ def run_aegis_batch(backend: Path, venv_python: str, tasks) -> dict:
         text=True, cwd=backend, timeout=600)
     if proc.returncode != 0:
         raise RuntimeError(f"aegis runner failed: {proc.stderr[-500:]}")
-    return {r["id"]: r for r in json.loads(proc.stdout)}
+    try:
+        results = json.loads(proc.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(
+            f"aegis runner produced unparseable output: {exc}; "
+            f"stdout head: {proc.stdout[:200]!r}") from exc
+    return {r["id"]: r for r in results}
 
 
 def build_aegis_agent(backend: Path, venv_python: str, tasks):
