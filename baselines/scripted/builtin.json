@@ -1,0 +1,29 @@
+{
+  "agent": "scripted",
+  "dataset": "builtin",
+  "dataset_version": null,
+  "sample_count": 3,
+  "scorer": "keyword",
+  "recorded_at": "2026-11-04T08:17:20.652236+00:00",
+  "commit": "f260a050647b46b6388678421611dfd3bf6716b1",
+  "summary": {
+    "run_id": "ad1a04f857",
+    "tasks": 3,
+    "successes": 2,
+    "mean_score": 0.6667,
+    "scorers": {
+      "keyword": {
+        "tasks": 3,
+        "passed": 2
+      }
+    },
+    "retrieval": null,
+    "success_rate": 0.6667,
+    "avg_latency_s": 0.0,
+    "p95_latency_s": 0.0,
+    "total_prompt_tokens": 19,
+    "total_completion_tokens": 15,
+    "total_cost_usd": 0.0
+  },
+  "label": "harness validation (fixture agent)"
+}

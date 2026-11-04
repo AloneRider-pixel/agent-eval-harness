@@ -1,0 +1,12 @@
+{
+  "tolerance": {
+    "success_rate": 0.0,
+    "mean_score": 0.05
+  },
+  "budgets": {
+    "min_success_rate": 0.6,
+    "max_avg_latency_s": 5.0,
+    "max_p95_latency_s": 10.0,
+    "max_total_cost_usd": 0.01
+  }
+}
