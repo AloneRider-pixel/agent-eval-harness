@@ -111,3 +111,15 @@ def test_unparseable_runner_output_is_a_wrapped_error():
             m.run_aegis_batch(Path("/tmp"), sys.executable, [])
     finally:
         subprocess.run = real_run
+
+
+def test_latency_comparison_uses_raw_durations_not_rounded_display():
+    # a nonzero sub-microsecond latency must still lose to a tighter budget;
+    # equality passes (budgets are strict > / <)
+    current = {"avg_latency_s": 4.2e-07}
+    ok, reasons = compare(current, {"summary": {}}, {}, {"max_avg_latency_s": 1e-09})
+    assert not ok and any("avg_latency_s" in r for r in reasons)
+    ok, reasons = compare(current, {"summary": {}}, {}, {"max_avg_latency_s": 4.2e-07})
+    assert ok, reasons
+    ok, reasons = compare(current, {"summary": {}}, {}, {"max_avg_latency_s": 4.3e-07})
+    assert ok, reasons
