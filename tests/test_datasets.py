@@ -6,7 +6,7 @@ import pytest
 from app import datasets
 from app.datasets import load_dataset, parse_dataset_ref
 
-BOTH = ["enterprise-support", "aegis"]
+BOTH = ["enterprise-support", "aegis", "adversarial"]
 
 
 def test_manifest_datasets_load_and_validate():
@@ -15,7 +15,7 @@ def test_manifest_datasets_load_and_validate():
     for name in BOTH:
         ds = load_dataset(name)
         assert ds.version == manifest["datasets"][name]["latest"] == "v1"
-        assert len(ds.tasks) == 8
+        assert len(ds.tasks) >= 8
         assert ds.target_agent and ds.provenance
         ids = [t.id for t in ds.tasks]
         assert len(ids) == len(set(ids)), "unique task ids"

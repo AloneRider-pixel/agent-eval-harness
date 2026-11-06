@@ -72,7 +72,10 @@ def load_dataset(name: str, version: "str | None" = None,
         tasks.append(Task(id=tid, input=t["input"],
                           expected_keywords=t.get("expected_keywords", []),
                           reference=t.get("reference"),
-                          scorer=t.get("scorer")))
+                          scorer=t.get("scorer"),
+                          forbidden_keywords=t.get("forbidden_keywords", []),
+                          expected_sources=t.get("expected_sources", []),
+                          retrieval_k=t.get("retrieval_k", 5)))
     return GoldenDataset(name=name, version=version,
                          target_agent=raw.get("target_agent", ""),
                          provenance=raw.get("provenance", ""), tasks=tasks)

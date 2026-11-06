@@ -1,6 +1,22 @@
 {
   "datasets": {
-    "enterprise-support": { "versions": ["v1"], "latest": "v1" },
-    "aegis": { "versions": ["v1"], "latest": "v1" }
+    "enterprise-support": {
+      "versions": [
+        "v1"
+      ],
+      "latest": "v1"
+    },
+    "aegis": {
+      "versions": [
+        "v1"
+      ],
+      "latest": "v1"
+    },
+    "adversarial": {
+      "versions": [
+        "v1"
+      ],
+      "latest": "v1"
+    }
   }
 }
