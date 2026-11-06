@@ -21,6 +21,40 @@ per task, persisted in Postgres, exposed over FastAPI.
 - **Cost:** per-1K-token pricing table for known models; unknown models are reported
   as unpriced (cost 0 with `priced=false` in code) instead of being guessed.
 
+## Scorers
+
+Each task is scored by one of three pluggable scorers (`scorer` per task or per run;
+default `keyword`):
+
+- **keyword** - deterministic substring checks, always available, fully offline.
+- **semantic** - cosine similarity between sentence embeddings of the agent output
+  and the task's `reference` answer. Needs the optional extra
+  `pip install sentence-transformers` (or an injected embedder); never required for
+  CI, which stays offline and deterministic.
+- **judge** - an LLM judge grades the output against the reference. Credentialed:
+  it activates only when `EVAL_JUDGE_API_KEY` is set, which is reserved for
+  explicitly approved runs. A saved key existing is not approval. Default CI never
+  builds or calls the judge; its logic is tested with injected scripted judges.
+
+```json
+POST /runs {"agent": "scripted", "dataset": "aegis@v1", "scorer": "keyword"}
+```
+
+`GET /datasets` lists the available golden datasets.
+
+## Golden datasets
+
+Versioned task sets under `datasets/` (`manifest.json` + `<name>/<version>.json`)
+for the real agents this harness evaluates: `enterprise-support` and `aegis`,
+8 tasks each, with references for semantic/judge scoring and documented
+provenance. Released versions are immutable; changes land as a new version so
+runs stay comparable.
+
+Integrity rule: results on these fixtures validate the harness and the scorer
+wiring. They are labelled harness validation, never measured app quality - an
+app's numbers appear only after a real run against that app, with model, dataset
+version, sample count, config, timestamp and commit recorded.
+
 ## Storage
 
 Postgres (embedded via pgserver in tests/demo; `DATABASE_URL` in production):
@@ -48,8 +82,11 @@ API creates/lists/fetches runs and 404s unknown ones.
 
 ## Honest limitations
 
-- Keyword scoring is a simple, transparent judge; semantic/LLM-judge scoring is a
-  documented extension point, not included.
+- Keyword scoring is the deterministic default. The semantic scorer's default
+  threshold (0.6) is a starting point, not a calibrated value; calibrate per agent
+  before trusting it in a gate. The LLM judge's real provider path
+  (`groq_judge`) is implemented but intentionally never exercised in CI -
+  credentialed runs are separately approved and separately reported.
 - The bundled agents are deterministic stand-ins; point `run_eval` at your real agent
   callable to evaluate it.
 - Token counts come from the agent's own report; the harness trusts but records them.

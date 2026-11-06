@@ -3,6 +3,8 @@ import time
 import uuid
 from dataclasses import dataclass, field
 
+from .scorers import ScoreResult
+
 # USD per 1K tokens (prompt, completion) - free-tier models cost 0.00 on free tier;
 # prices shown for honesty when a paid key is used. Keep this table current manually.
 PRICING = {
@@ -18,6 +20,8 @@ class Task:
     id: str
     input: str
     expected_keywords: list[str] = field(default_factory=list)
+    reference: str | None = None   # reference answer for semantic / judge scorers
+    scorer: str | None = None      # per-task scorer override (keyword|semantic|judge)
 
 
 @dataclass
@@ -38,6 +42,9 @@ class TaskResult:
     cost_usd: float
     output: str
     error: str | None = None
+    score: float = 0.0
+    scorer: str = "keyword"
+    detail: str = ""
 
 
 def estimate_cost(model, prompt_tokens, completion_tokens):
@@ -53,11 +60,35 @@ def score(output: str, expected_keywords: list[str]) -> bool:
     return all(k.lower() in low for k in expected_keywords)
 
 
-def run_eval(tasks: list[Task], agent, run_id: str | None = None):
-    """agent: callable(input: str) -> AgentResult. Returns (run_id, results, summary)."""
+def run_eval(tasks: list[Task], agent, run_id: str | None = None, scorer=None):
+    """agent: callable(input: str) -> AgentResult. Returns (run_id, results, summary).
+
+    scorer: a scorer name ("keyword"|"semantic"|"judge"), a scorer instance, or
+    None (keyword). A task's own .scorer overrides the run default. Scorer
+    backend errors (ScorerUnavailable, provider failures) abort the run loudly -
+    a misconfigured scorer must never masquerade as agent failures.
+    """
+    from .scorers import get_scorer
+
     run_id = run_id or uuid.uuid4().hex[:10]
+    cache: dict = {}
+
+    def resolve(task):
+        if task.scorer:
+            name = task.scorer
+        elif isinstance(scorer, str):
+            name = scorer
+        elif scorer is not None:
+            return scorer, getattr(scorer, "name", type(scorer).__name__)
+        else:
+            name = "keyword"
+        if name not in cache:
+            cache[name] = get_scorer(name)
+        return cache[name], name
+
     results: list[TaskResult] = []
     for task in tasks:
+        scr, scr_name = resolve(task)
         t0 = time.perf_counter()
         error = None
         try:
@@ -66,9 +97,16 @@ def run_eval(tasks: list[Task], agent, run_id: str | None = None):
             res, error = AgentResult(output=""), str(exc)
         latency = time.perf_counter() - t0
         cost, _ = estimate_cost(res.model, res.prompt_tokens, res.completion_tokens)
+        if error is not None:
+            sres = ScoreResult(False, 0.0, "agent error")
+        else:
+            sres = scr.score_task(task, res.output)
         results.append(TaskResult(
             task_id=task.id,
-            success=(error is None) and score(res.output, task.expected_keywords),
+            success=sres.passed,
+            score=sres.score,
+            scorer=scr_name,
+            detail=sres.detail,
             latency_s=round(latency, 4),
             prompt_tokens=res.prompt_tokens,
             completion_tokens=res.completion_tokens,
@@ -79,10 +117,17 @@ def run_eval(tasks: list[Task], agent, run_id: str | None = None):
     n = len(results)
     successes = sum(1 for r in results if r.success)
     latencies = sorted(r.latency_s for r in results)
+    scorer_stats: dict = {}
+    for r in results:
+        st = scorer_stats.setdefault(r.scorer, {"tasks": 0, "passed": 0})
+        st["tasks"] += 1
+        st["passed"] += 1 if r.success else 0
     summary = {
         "run_id": run_id,
         "tasks": n,
         "successes": successes,
+        "mean_score": round(sum(r.score for r in results) / n, 4) if n else 0.0,
+        "scorers": scorer_stats,
         "success_rate": round(successes / n, 4) if n else 0.0,
         "avg_latency_s": round(sum(latencies) / n, 4) if n else 0.0,
         "p95_latency_s": latencies[min(n - 1, int(0.95 * (n - 1)))] if n else 0.0,
