@@ -92,7 +92,7 @@ def compare(current: dict, baseline: dict, tolerance: dict, budgets: dict):
             continue
         if cur_v < base_v - tol:
             reasons.append(
-                f"regression: {metric} {cur_v} < baseline {base_v} - tolerance {tol}")
+                f"regression: {metric} {cur_v:.6g} < baseline {base_v:.6g} - tolerance {tol}")
     for budget, (key, direction) in BUDGET_KEYS.items():
         if budget not in (budgets or {}):
             continue
@@ -101,9 +101,9 @@ def compare(current: dict, baseline: dict, tolerance: dict, budgets: dict):
         if cur_v is None:
             continue
         if direction == "max" and cur_v > limit:
-            reasons.append(f"budget breach: {key} {cur_v} > {limit}")
+            reasons.append(f"budget breach: {key} {cur_v:.6g} > {limit:.6g}")
         if direction == "min" and cur_v < limit:
-            reasons.append(f"budget breach: {key} {cur_v} < {limit}")
+            reasons.append(f"budget breach: {key} {cur_v:.6g} < {limit:.6g}")
     return (not reasons), reasons
 
 

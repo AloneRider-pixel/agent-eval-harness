@@ -1,0 +1,91 @@
+{
+  "label": "measured run (real app, current revision as-is)",
+  "app": "aegis (AloneRider-pixel/aegis)",
+  "app_commit": "81f2cfb",
+  "harness_commit": "87aa54d",
+  "dataset": "aegis",
+  "dataset_version": "v1",
+  "scorer": "keyword",
+  "config": {
+    "llm": "none in agent path on this commit; key-free",
+    "approval_gating": "unchanged (no execution path invoked)"
+  },
+  "recorded_at": "2026-11-04T08:51:11.199732+00:00",
+  "summary": {
+    "run_id": "9d760b07a3",
+    "tasks": 8,
+    "successes": 0,
+    "mean_score": 0.0,
+    "scorers": {
+      "keyword": {
+        "tasks": 8,
+        "passed": 0
+      }
+    },
+    "retrieval": null,
+    "success_rate": 0.0,
+    "avg_latency_s": 0.0,
+    "p95_latency_s": 0.0,
+    "total_prompt_tokens": 0,
+    "total_completion_tokens": 0,
+    "total_cost_usd": 0.0
+  },
+  "task_results": [
+    {
+      "task_id": "ag-error-rate-spike",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-cpu-saturation",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-db-pool-exhaustion",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-memory-growth",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-latency-after-deploy",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-cert-expiry",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-disk-full",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    },
+    {
+      "task_id": "ag-approval-boundary",
+      "success": false,
+      "error": "ModuleNotFoundError: No module named 'app.services.knowledge_service'",
+      "detail": "agent error",
+      "latency_s": 0.0
+    }
+  ]
+}
