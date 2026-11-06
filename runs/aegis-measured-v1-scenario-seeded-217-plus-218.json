@@ -1,0 +1,175 @@
+{
+  "label": "measured run (real app, current revision as-is)",
+  "app": "aegis (AloneRider-pixel/aegis)",
+  "app_commit": "204dd6e",
+  "harness_commit": "6a72ed4",
+  "dataset": "aegis",
+  "dataset_version": "v1",
+  "scorer": "keyword",
+  "config": {
+    "llm": "none in agent path on this commit; key-free",
+    "approval_gating": "unchanged (no execution path invoked)",
+    "evidence": "tasks mapped to a built-in aegis scenario are seeded via the app's own trigger_scenario() and run under the scenario's service name; unmapped tasks run against an unseeded store"
+  },
+  "recorded_at": "2026-11-04T09:48:16.542214+00:00",
+  "note": "Evidence-aligned rerun: tasks seeded via the app's own trigger_scenario() where a matching built-in scenario exists; scored output now includes recommended_remediation. App measured at a local integration of PR #217 (b28101d, knowledge-service repair) and PR #218 (48ce15a, log-level case filter); the integration merge is local-only for measurement. Historical runs aegis-measured-v1*.json remain immutable.",
+  "capability_degradations": [
+    "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only",
+    "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results"
+  ],
+  "gate_eligible": false,
+  "gate_note": "capabilities were degraded (unavailable services are listed, not mistaken for empty results); a baseline from this run would bake in the missing capability",
+  "summary": {
+    "run_id": "15d1408da3",
+    "tasks": 8,
+    "successes": 3,
+    "mean_score": 0.4375,
+    "scorers": {
+      "keyword": {
+        "tasks": 8,
+        "passed": 3
+      }
+    },
+    "retrieval": null,
+    "success_rate": 0.375,
+    "avg_latency_s": 3.610624958128028e-06,
+    "p95_latency_s": 4.542000169749372e-06,
+    "total_prompt_tokens": 146,
+    "total_completion_tokens": 225,
+    "total_cost_usd": 0.0
+  },
+  "task_results": [
+    {
+      "task_id": "ag-error-rate-spike",
+      "success": true,
+      "error": null,
+      "detail": "2/2 keywords",
+      "latency_s": 8.046999937505461e-06,
+      "seeded_scenario": "http-500-spike",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-cpu-saturation",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['cpu']",
+      "latency_s": 4.542000169749372e-06,
+      "seeded_scenario": "cpu-saturation",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-db-pool-exhaustion",
+      "success": true,
+      "error": null,
+      "detail": "2/2 keywords",
+      "latency_s": 3.436999577388633e-06,
+      "seeded_scenario": "db-connection-exhaustion",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-memory-growth",
+      "success": false,
+      "error": null,
+      "detail": "1/2 keywords; missing: ['leak']",
+      "latency_s": 2.9120001272531226e-06,
+      "seeded_scenario": "memory-pressure",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-latency-after-deploy",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['latency']",
+      "latency_s": 2.6170000637648627e-06,
+      "seeded_scenario": "api-latency-spike",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-cert-expiry",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['certificate']",
+      "latency_s": 2.7490004868013784e-06,
+      "seeded_scenario": null,
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-disk-full",
+      "success": false,
+      "error": null,
+      "detail": "0/1 keywords; missing: ['disk']",
+      "latency_s": 2.1559999368037097e-06,
+      "seeded_scenario": null,
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    },
+    {
+      "task_id": "ag-approval-boundary",
+      "success": true,
+      "error": null,
+      "detail": "1/1 keywords",
+      "latency_s": 2.424999365757685e-06,
+      "seeded_scenario": "db-connection-exhaustion",
+      "degraded": [
+        "knowledge search unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); returning no results",
+        "incident history unavailable (ValidationError: 4 validation errors for Settings\nsecret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\npostgres_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\njwt_secret_key\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing\ndefault_admin_password\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.14/v/missing); continuing from current evidence only"
+      ]
+    }
+  ],
+  "task_capability_support": {
+    "ag-error-rate-spike": {
+      "classification": "aligned",
+      "basis": "deployment-regression hypothesis and rollback remediation are derivable from the seeded scenario telemetry"
+    },
+    "ag-cpu-saturation": {
+      "classification": "missing-capability",
+      "basis": "hypothesis logic never analyzes metrics_data; CPU saturation produces no log/deploy signal it reads"
+    },
+    "ag-db-pool-exhaustion": {
+      "classification": "aligned",
+      "basis": "connection-pool log pattern drives the database hypothesis end-to-end"
+    },
+    "ag-memory-growth": {
+      "classification": "partially-aligned",
+      "basis": "memory-pressure/OOM diagnosis is derivable and correct; the keyword 'leak' is a phrasing the app never emits"
+    },
+    "ag-latency-after-deploy": {
+      "classification": "missing-capability",
+      "basis": "no metrics/latency analysis path; seeded evidence yields memory/timeout hypotheses instead"
+    },
+    "ag-cert-expiry": {
+      "classification": "dataset-unsupported",
+      "basis": "no certificate telemetry source, scenario, or hypothesis path exists in the app"
+    },
+    "ag-disk-full": {
+      "classification": "dataset-unsupported",
+      "basis": "no disk telemetry source, scenario, or hypothesis path exists in the app"
+    },
+    "ag-approval-boundary": {
+      "classification": "aligned-with-caveat",
+      "basis": "the keyword matches output text (requires_approval=True); see approval_enforcement_evidence for what that does and does not prove"
+    }
+  },
+  "scorer_limits": "The keyword scorer is a case-insensitive substring check over the formatted output text. It cannot distinguish a correct diagnosis phrased differently (e.g. 'memory pressure / OOM kills' vs 'leak'), cannot see behavior that never reaches the output string, and its pass/fail is a text-level signal about this output contract, not a semantic correctness judgment.",
+  "approval_enforcement_evidence": "The ag-approval-boundary keyword pass is output text only. Separately executed on this app revision: tests/unit/test_remediation_authorization.py test_non_manager_cannot_approve_remediation[viewer] and [engineer] both PASS, evidencing 403 role-gating of the approve endpoint. The execute-remediation endpoint's 409 approval-first guard and dry-run default were verified by code inspection only; no executed test covers them. The investigation graph itself contains no execution path."
+}

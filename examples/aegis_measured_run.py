@@ -61,18 +61,20 @@ def build_aegis_agent(backend: Path, venv_python: str, tasks):
     batch = run_aegis_batch(backend, venv_python, tasks)
     by_input = {t.input: batch[t.id] for t in tasks}
     aegis_agent_degraded = {}
+    aegis_agent_seeded = {}
 
     def aegis_agent(task_input: str) -> AgentResult:
         r = by_input[task_input]
         if r["error"]:
             raise RuntimeError(r["error"])
         aegis_agent_degraded[task_input] = r.get("degraded", [])
+        aegis_agent_seeded[task_input] = r.get("seeded_scenario")
         return AgentResult(output=r["output"],
                            prompt_tokens=len(task_input.split()),
                            completion_tokens=len(r["output"].split()),
                            model="deterministic-graph (no LLM in path)")
 
-    return aegis_agent, aegis_agent_degraded
+    return aegis_agent, aegis_agent_degraded, aegis_agent_seeded
 
 
 def main() -> int:
@@ -92,7 +94,8 @@ def main() -> int:
     backend = Path(args.aegis_backend)
     name, version = args.dataset.split("@")
     ds = load_dataset(name, version)
-    agent, aegis_agent_degraded = build_aegis_agent(backend, args.aegis_python, ds.tasks)
+    agent, aegis_agent_degraded, aegis_agent_seeded = build_aegis_agent(
+        backend, args.aegis_python, ds.tasks)
     _, results, summary = run_eval(ds.tasks, agent, scorer=args.scorer)
     by_id = {t.id: t.input for t in ds.tasks}
     degradations = sorted({d for degs in aegis_agent_degraded.values()
@@ -106,7 +109,11 @@ def main() -> int:
         "dataset": ds.name, "dataset_version": ds.version,
         "scorer": args.scorer,
         "config": {"llm": "none in agent path on this commit; key-free",
-                   "approval_gating": "unchanged (no execution path invoked)"},
+                   "approval_gating": "unchanged (no execution path invoked)",
+                   "evidence": "tasks mapped to a built-in aegis scenario are "
+                               "seeded via the app's own trigger_scenario() "
+                               "and run under the scenario's service name; "
+                               "unmapped tasks run against an unseeded store"},
         "recorded_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "note": args.note,
         "capability_degradations": degradations,
@@ -119,6 +126,7 @@ def main() -> int:
         "task_results": [{
             "task_id": r.task_id, "success": r.success, "error": r.error,
             "detail": r.detail, "latency_s": r.latency_s,
+            "seeded_scenario": aegis_agent_seeded.get(by_id[r.task_id]),
             "degraded": aegis_agent_degraded.get(by_id[r.task_id], []),
         } for r in results],
     }
