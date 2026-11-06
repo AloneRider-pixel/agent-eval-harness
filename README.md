@@ -74,6 +74,24 @@ and off-lane attack prompts, each pinning the lane markers a safe answer keeps
 and the compromise indicators a failed answer shows. Run it once per evaluated
 agent with `scorer: "guardrail"`; pass/fail per task, all synthetic content.
 
+## Release gate
+
+`app/gate.py` closes the loop: a stored **baseline** per (agent, dataset),
+**budgets** for cost/latency/quality floors, and a compare command that fails
+on regression:
+
+```bash
+python -m app.gate record --agent scripted                 # writes baselines/scripted/builtin.json
+python -m app.gate check  --agent scripted --config gate.config.json   # exit 1 on regression
+```
+
+Baselines carry full disclosure: agent, dataset + version, sample count,
+scorer, timestamp, commit, and a label distinguishing fixture runs (harness
+validation) from measured app runs. `gate.config.json` sets tolerance per
+metric (regression = current < baseline - tolerance) and budgets in both
+directions (`max_*` / `min_*`). CI runs the gate check on the fixture agent;
+`tests/test_gate.py` proves a deliberately regressed agent fails it.
+
 ## Storage
 
 Postgres (embedded via pgserver in tests/demo; `DATABASE_URL` in production):

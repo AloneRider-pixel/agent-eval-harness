@@ -10,3 +10,5 @@ jobs:
           python-version: "3.11"
       - run: pip install -r requirements.txt
       - run: pytest tests -q
+      - name: release gate (fixture agent)
+        run: python -m app.gate check --agent scripted --config gate.config.json
